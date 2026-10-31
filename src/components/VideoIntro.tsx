@@ -56,6 +56,7 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
 
   return (
     <div
+      id="fao-video-intro"
       className={`fixed inset-0 bg-[#000000] z-[99999] flex items-center justify-center overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.5,0,0,1)] ${
         fadeOut ? 'opacity-0 scale-102 pointer-events-none' : 'opacity-100 scale-100'
       }`}

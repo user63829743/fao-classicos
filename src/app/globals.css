@@ -90,3 +90,8 @@
   image-rendering: -webkit-optimize-contrast;
   filter: contrast(1.1) brightness(1.02);
 }
+
+/* Intro visibility control: hidden immediately when already seen */
+html.intro-seen #fao-video-intro {
+  display: none !important;
+}

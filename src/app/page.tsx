@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import HeroSlider from '@/components/HeroSlider';
 import FeaturedSection from '@/components/FeaturedSection';
@@ -20,6 +20,36 @@ export default function Home() {
   const [selectedBrand, setSelectedBrand] = useState('Todas');
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [showIntro, setShowIntro] = useState(true);
+
+  // Intro control: only shown on first access, never on reload
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const forceIntro = params.get('intro') === 'true' || params.get('intro') === '1';
+      const hasSeenIntro = localStorage.getItem('fao_intro_seen') || sessionStorage.getItem('fao_intro_seen');
+
+      if (hasSeenIntro && !forceIntro) {
+        setShowIntro(false);
+      } else {
+        setShowIntro(true);
+        localStorage.setItem('fao_intro_seen', 'true');
+        sessionStorage.setItem('fao_intro_seen', 'true');
+      }
+    } catch {
+      setShowIntro(false);
+    }
+  }, []);
+
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+    try {
+      localStorage.setItem('fao_intro_seen', 'true');
+      sessionStorage.setItem('fao_intro_seen', 'true');
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.add('intro-seen');
+      }
+    } catch {}
+  };
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -44,7 +74,7 @@ export default function Home() {
     <div className="min-h-screen bg-white text-neutral-900 font-sans flex flex-col justify-between selection:bg-[#a11a1a] selection:text-white">
       {/* Cinematic Logo Reveal Video Intro */}
       {showIntro && (
-        <VideoIntro onComplete={() => setShowIntro(false)} />
+        <VideoIntro onComplete={handleIntroComplete} />
       )}
 
       {/* Main Header with Search pill, Phone, and red active line indicator */}

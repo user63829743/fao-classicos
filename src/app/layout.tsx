@@ -30,7 +30,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${amiko.variable} ${plusJakarta.variable}`}>
+    <html lang="pt-BR" className={`${amiko.variable} ${plusJakarta.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var params = new URLSearchParams(window.location.search);
+                var forceIntro = params.get('intro') === 'true' || params.get('intro') === '1';
+                var seen = localStorage.getItem('fao_intro_seen') || sessionStorage.getItem('fao_intro_seen');
+                if (seen && !forceIntro) {
+                  document.documentElement.classList.add('intro-seen');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className="bg-white text-neutral-900 font-sans selection:bg-[#a11a1a] selection:text-white">
         {children}
       </body>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, Maximize2, ChevronDown, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BrandVideoHeroProps {
@@ -14,7 +14,6 @@ export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProp
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [showCenterIcon, setShowCenterIcon] = useState(false);
 
   useEffect(() => {
@@ -36,16 +35,10 @@ export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProp
       }
     };
 
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
     video.addEventListener('timeupdate', handleTimeUpdate);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
@@ -75,22 +68,6 @@ export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProp
 
     if (!nextMuted && video.paused) {
       video.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
-  };
-
-  const toggleFullscreen = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    const section = sectionRef.current;
-    if (!section) return;
-
-    if (!document.fullscreenElement) {
-      if (section.requestFullscreen) {
-        section.requestFullscreen().catch(() => {});
-      }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
     }
   };
 
@@ -225,57 +202,24 @@ export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProp
       </div>
 
       {/* Floating Interactive Controls (Bottom Right) */}
-      <div className="absolute bottom-6 right-6 z-20 flex items-center space-x-2.5">
-        
-        {/* Play / Pause Button */}
-        <button
-          type="button"
-          onClick={togglePlay}
-          className="w-10 h-10 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer hover:scale-110 active:scale-95 shadow-xl"
-          title={isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
-          aria-label={isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
-        >
-          {isPlaying ? (
-            <Pause className="w-4 h-4 fill-white" />
-          ) : (
-            <Play className="w-4 h-4 fill-white ml-0.5" />
-          )}
-        </button>
-
-        {/* Sound Toggle (Mute / Unmute) Button */}
+      <div className="absolute bottom-6 right-6 z-20 flex items-center">
+        {/* Sound Toggle (Mute / Unmute) Button - Icon Only */}
         <button
           type="button"
           onClick={toggleMute}
-          className={`flex items-center space-x-2 px-3.5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider backdrop-blur-md border transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-xl ${
+          className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center transition-all cursor-pointer hover:scale-110 active:scale-95 shadow-xl ${
             isMuted
               ? 'bg-black/70 border-white/20 text-neutral-200 hover:text-white hover:bg-black/90'
               : 'bg-[#a11a1a] border-red-500 text-white shadow-red-950/60'
           }`}
-          title={isMuted ? "Ativar som do vídeo" : "Desativar som do vídeo"}
-          aria-label={isMuted ? "Ativar som do vídeo" : "Desativar som do vídeo"}
+          title={isMuted ? "Ativar som" : "Desativar som"}
+          aria-label={isMuted ? "Ativar som" : "Desativar som"}
         >
           {isMuted ? (
-            <>
-              <VolumeX className="w-4 h-4" />
-              <span className="text-[11px]">Ativar Som</span>
-            </>
+            <VolumeX className="w-4 h-4" />
           ) : (
-            <>
-              <Volume2 className="w-4 h-4" />
-              <span className="text-[11px]">Som Ligado</span>
-            </>
+            <Volume2 className="w-4 h-4" />
           )}
-        </button>
-
-        {/* Fullscreen Button */}
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="w-10 h-10 rounded-full bg-black/70 hover:bg-black/90 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer hover:scale-110 active:scale-95 shadow-xl"
-          title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
-          aria-label="Alternar tela cheia"
-        >
-          <Maximize2 className="w-4 h-4" />
         </button>
       </div>
 
