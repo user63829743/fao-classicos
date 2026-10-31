@@ -37,9 +37,10 @@ export default function Header({
   // Detect scroll for sticky header effect
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      setScrolled(window.scrollY > 80);
     };
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -51,14 +52,15 @@ export default function Header({
   ];
 
   const currentNavIndex = navItems.find((item) => item.id === activeTab)?.index ?? 0;
+  const isVisible = activeTab !== 'home' || scrolled;
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-40 transition-all duration-500 ease-in-out ${
-          scrolled
-            ? 'bg-black/95 backdrop-blur-md py-3.5 md:py-4 shadow-xl border-b border-white/10'
-            : 'bg-white/80 backdrop-blur-sm py-6 md:py-8 border-b border-transparent'
+        className={`fixed top-0 left-0 w-full z-40 transition-all duration-500 ease-out ${
+          isVisible
+            ? 'translate-y-0 opacity-100 pointer-events-auto bg-black/95 backdrop-blur-md py-2 md:py-2.5 shadow-2xl border-b border-white/10'
+            : '-translate-y-full opacity-0 pointer-events-none py-2 md:py-2.5'
         }`}
       >
         <div className="max-w-[1340px] mx-auto px-6 md:px-12">
@@ -75,9 +77,7 @@ export default function Header({
               <img
                 src="/Logo-Sem-fundo.png"
                 alt="FAO Clássicos"
-                className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${
-                  scrolled ? 'h-11 md:h-13 brightness-100' : 'h-13 md:h-16 brightness-0'
-                }`}
+                className="w-auto h-8 md:h-10 object-contain brightness-100 transition-all duration-300 group-hover:scale-105"
               />
             </div>
 
@@ -86,37 +86,21 @@ export default function Header({
               <button
                 type="button"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className={`flex items-center justify-center px-6 py-2.5 rounded-full transition-all duration-300 group cursor-pointer border ${
-                  scrolled
-                    ? 'bg-neutral-900/90 hover:bg-neutral-800/90 border-neutral-800 text-neutral-300 hover:border-neutral-700'
-                    : 'bg-neutral-100/70 hover:bg-[#fff4f4] border-[#eaeaea]'
-                }`}
+                className="flex items-center justify-center px-5 py-2 rounded-full transition-all duration-300 group cursor-pointer border bg-neutral-900/90 hover:bg-neutral-800/90 border-neutral-800 text-neutral-300 hover:border-neutral-700"
               >
                 {/* Rotating brand icon/badge */}
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center overflow-hidden mr-3 transition-colors ${
-                  scrolled ? 'bg-neutral-800 text-neutral-200' : 'bg-neutral-200/80 text-neutral-700'
-                }`}>
-                  <span className="text-[10px] font-bold transition-transform duration-500">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center overflow-hidden mr-2.5 transition-colors bg-neutral-800 text-neutral-200">
+                  <span className="text-[9px] font-bold transition-transform duration-500">
                     {ROTATING_BRANDS[brandIndex].slice(0, 2)}
                   </span>
                 </div>
                 
                 {/* Title and current rotating brand */}
-                <span className={`text-xs transition-colors font-medium ${
-                  scrolled
-                    ? 'text-neutral-400 group-hover:text-white'
-                    : 'text-neutral-600 group-hover:text-[#a11a1a]'
-                }`}>
-                  Pesquise por marca: <strong className={`uppercase ml-1 transition-colors ${
-                    scrolled ? 'text-white' : 'text-neutral-900'
-                  }`}>{selectedBrand !== 'Todas' ? selectedBrand : ROTATING_BRANDS[brandIndex]}</strong>
+                <span className="text-[11px] transition-colors font-medium text-neutral-400 group-hover:text-white">
+                  Pesquise por marca: <strong className="uppercase ml-1 transition-colors text-white">{selectedBrand !== 'Todas' ? selectedBrand : ROTATING_BRANDS[brandIndex]}</strong>
                 </span>
 
-                <Search className={`w-3.5 h-3.5 ml-3 transition-colors ${
-                  scrolled
-                    ? 'text-neutral-400 group-hover:text-white'
-                    : 'text-neutral-400 group-hover:text-[#a11a1a]'
-                }`} />
+                <Search className="w-3.5 h-3.5 ml-2.5 transition-colors text-neutral-400 group-hover:text-white" />
               </button>
 
               {/* Brand Selector Dropdown */}
@@ -126,14 +110,8 @@ export default function Header({
                     className="fixed inset-0 z-10" 
                     onClick={() => setDropdownOpen(false)} 
                   />
-                  <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-3 w-64 rounded-2xl shadow-2xl z-20 py-2 max-h-72 overflow-y-auto border ${
-                    scrolled
-                      ? 'bg-neutral-950 border-neutral-800 text-white'
-                      : 'bg-white border-[#eaeaea] text-neutral-900'
-                  }`}>
-                    <div className={`px-4 py-2 border-b text-[11px] font-semibold tracking-wider uppercase ${
-                      scrolled ? 'border-neutral-800 text-neutral-400' : 'border-neutral-100 text-neutral-400'
-                    }`}>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-64 rounded-2xl shadow-2xl z-20 py-2 max-h-72 overflow-y-auto border bg-neutral-950 border-neutral-800 text-white">
+                    <div className="px-4 py-2 border-b text-[11px] font-semibold tracking-wider uppercase border-neutral-800 text-neutral-400">
                       Filtrar Marca
                     </div>
                     {BRANDS.map((brand) => (
@@ -146,12 +124,8 @@ export default function Header({
                         }}
                         className={`w-full text-left px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-between ${
                           selectedBrand === brand
-                            ? scrolled
-                              ? 'bg-neutral-900 text-[#a11a1a]'
-                              : 'bg-[#fff4f4] text-[#a11a1a]'
-                            : scrolled
-                              ? 'text-neutral-300 hover:bg-neutral-900 hover:text-white'
-                              : 'text-neutral-700 hover:bg-neutral-50 hover:text-[#a11a1a]'
+                            ? 'bg-neutral-900 text-[#a11a1a]'
+                            : 'text-neutral-300 hover:bg-neutral-900 hover:text-white'
                         }`}
                       >
                         <span>{brand}</span>
@@ -166,58 +140,44 @@ export default function Header({
             </div>
 
             {/* Right side: Phone & Vertical indicator Navigation */}
-            <div className="hidden lg:flex items-center space-x-10">
+            <div className="hidden lg:flex items-center space-x-8">
               {/* Phone contact */}
               <a
-                href="https://api.whatsapp.com/send?phone=5511987654321&text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20FAO%20Cl%C3%A1ssicos."
+                href="https://api.whatsapp.com/send?phone=5561998631878&text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20FAO%20Cl%C3%A1ssicos."
                 target="_blank"
                 rel="noreferrer"
-                className={`flex items-center text-xs transition-colors group ${
-                  scrolled
-                    ? 'text-neutral-300 hover:text-white'
-                    : 'text-neutral-500 hover:text-[#a11a1a]'
-                }`}
+                className="flex items-center text-xs transition-colors group text-neutral-300 hover:text-white"
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center mr-2 transition-colors ${
-                  scrolled
-                    ? 'bg-neutral-900 group-hover:bg-[#a11a1a]/30'
-                    : 'bg-neutral-100 group-hover:bg-[#fff4f4]'
-                }`}>
-                  <Phone className={`w-3.5 h-3.5 transition-colors ${
-                    scrolled
-                      ? 'text-neutral-300 group-hover:text-white'
-                      : 'text-neutral-500 group-hover:text-[#a11a1a]'
-                  }`} />
+                <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 transition-colors bg-neutral-900 group-hover:bg-[#a11a1a]/30">
+                  <Phone className="w-3 h-3 transition-colors text-neutral-300 group-hover:text-white" />
                 </div>
-                <span>
-                  (11) 98765-4321 <span className="text-[10px] text-neutral-400 block font-light">Consultor Especialista</span>
+                <span className="text-[11px] leading-tight">
+                  (61) 99863-1878 <span className="text-[9px] text-neutral-400 block font-light">Showroom Brasília - DF</span>
                 </span>
               </a>
 
               {/* Navigation with GPS Motors red active bar */}
-              <div className="relative pr-6">
+              <div className="relative pr-5">
                 <div
                   className="absolute right-0 w-[2px] bg-[#a11a1a] transition-all duration-300 ease-out"
                   style={{
-                    height: '18px',
-                    top: `${currentNavIndex * 26 + 2}px`
+                    height: '14px',
+                    top: `${currentNavIndex * 19 + 2}px`
                   }}
                 />
 
-                <ul className="text-right space-y-1.5">
+                <ul className="text-right space-y-0.5">
                   {navItems.map((item) => (
-                    <li key={item.id}>
+                    <li key={item.id} className="leading-tight">
                       <button
                         onClick={() => {
                           setActiveTab(item.id);
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className={`text-xs uppercase tracking-wider font-medium transition-colors ${
+                        className={`text-[11px] uppercase tracking-wider font-medium transition-colors leading-tight ${
                           activeTab === item.id
                             ? 'text-[#a11a1a] font-semibold'
-                            : scrolled
-                              ? 'text-neutral-400 hover:text-white'
-                              : 'text-neutral-500 hover:text-neutral-900'
+                            : 'text-neutral-400 hover:text-white'
                         }`}
                       >
                         {item.label}
@@ -231,11 +191,11 @@ export default function Header({
             {/* Mobile Burger Menu Button */}
             <div className="lg:hidden flex items-center space-x-3">
               <Button
-                variant={scrolled ? "ghost" : "outline"}
+                variant="ghost"
                 size="icon"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label="Abrir Menu"
-                className={scrolled ? "text-white hover:bg-neutral-900 hover:text-white" : ""}
+                className="text-white hover:bg-neutral-900 hover:text-white"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5 text-[#a11a1a]" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -299,13 +259,13 @@ export default function Header({
         {/* Bottom Contacts & Social */}
         <div className="border-t border-neutral-100 pt-6 space-y-5 text-center">
           <a
-            href="https://api.whatsapp.com/send?phone=5511987654321"
+            href="https://api.whatsapp.com/send?phone=5561998631878"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center justify-center space-x-2 text-sm text-neutral-700 bg-neutral-100 px-6 py-3 rounded-full w-full font-medium"
           >
             <Phone className="w-4 h-4 text-[#a11a1a]" />
-            <span>(11) 98765-4321 • Consultor</span>
+            <span>(61) 99863-1878 • Showroom Brasília</span>
           </a>
 
           <div className="flex justify-center space-x-4 pt-2">

@@ -49,7 +49,7 @@ export default function HeroSlider({ cars, onSelectCar }: HeroSliderProps) {
   };
 
   return (
-    <section className="relative min-h-[92vh] md:min-h-screen pt-28 md:pt-36 pb-16 flex flex-col justify-between overflow-hidden bg-white select-none">
+    <section id="carrosel-veiculos" className="relative min-h-[92vh] md:min-h-screen pt-16 md:pt-24 pb-16 flex flex-col justify-between overflow-hidden bg-white select-none">
       {/* Background Watermark Model Name (Signature GPS Motors Detail) */}
       <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none z-0">
         <span 

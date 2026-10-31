@@ -12,6 +12,7 @@ import ContactView from '@/components/ContactView';
 import Footer from '@/components/Footer';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import VideoIntro from '@/components/VideoIntro';
+import BrandVideoHero from '@/components/BrandVideoHero';
 import { CARS_DATA, Car } from '@/data/cars';
 
 export default function Home() {
@@ -58,6 +59,16 @@ export default function Home() {
       <main className="flex-1">
         {activeTab === 'home' && (
           <>
+            {/* Apresentação Oficial: Logo FAO Clássicos Grande à Esquerda com Vídeo "FAO site" */}
+            <BrandVideoHero
+              onExploreVehicles={() => {
+                const el = document.getElementById('carrosel-veiculos');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
+
             {/* Hero Car Showcase Slider */}
             <HeroSlider
               cars={CARS_DATA}
