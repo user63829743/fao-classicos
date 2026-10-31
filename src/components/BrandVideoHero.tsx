@@ -6,28 +6,24 @@ import { Button } from '@/components/ui/button';
 
 interface BrandVideoHeroProps {
   onExploreVehicles?: () => void;
+  shouldPlay?: boolean;
 }
 
-export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProps) {
+export default function BrandVideoHero({ 
+  onExploreVehicles,
+  shouldPlay = true,
+}: BrandVideoHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [showCenterIcon, setShowCenterIcon] = useState(false);
 
+  // Track video playback progress
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
-    // Autoplay policy: start muted
-    video.muted = true;
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false));
-    }
 
     const handleTimeUpdate = () => {
       if (video.duration) {
@@ -41,6 +37,27 @@ export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProp
       video.removeEventListener('timeupdate', handleTimeUpdate);
     };
   }, []);
+
+  // Synchronized playback: plays only when shouldPlay is true (e.g. 0.5s before intro finishes)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = isMuted;
+
+    if (shouldPlay) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(() => setIsPlaying(false));
+      }
+    } else {
+      video.pause();
+      video.currentTime = 0;
+      setIsPlaying(false);
+    }
+  }, [shouldPlay, isMuted]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -108,11 +125,10 @@ export default function BrandVideoHero({ onExploreVehicles }: BrandVideoHeroProp
         <video
           ref={videoRef}
           poster="/fao-site-poster.jpg"
-          autoPlay
           loop
           muted={isMuted}
           playsInline
-          preload="metadata"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover object-center filter contrast-[1.08] brightness-[0.98]"
         >
           <source src="/FAO%20site.mp4" type="video/mp4" />

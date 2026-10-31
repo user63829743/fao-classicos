@@ -20,6 +20,19 @@ export default function Home() {
   const [selectedBrand, setSelectedBrand] = useState('Todas');
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [startHeroVideo, setStartHeroVideo] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const forceIntro = params.get('intro') === 'true' || params.get('intro') === '1';
+        const hasSeenIntro = localStorage.getItem('fao_intro_seen') || sessionStorage.getItem('fao_intro_seen');
+        if (hasSeenIntro && !forceIntro) {
+          return true; // Intro skipped, play hero video immediately
+        }
+      } catch {}
+    }
+    return false; // Intro is showing, wait until 0.5s before intro ends
+  });
 
   // Intro control: only shown on first access, never on reload
   useEffect(() => {
@@ -30,18 +43,22 @@ export default function Home() {
 
       if (hasSeenIntro && !forceIntro) {
         setShowIntro(false);
+        setStartHeroVideo(true);
       } else {
         setShowIntro(true);
+        setStartHeroVideo(false);
         localStorage.setItem('fao_intro_seen', 'true');
         sessionStorage.setItem('fao_intro_seen', 'true');
       }
     } catch {
       setShowIntro(false);
+      setStartHeroVideo(true);
     }
   }, []);
 
   const handleIntroComplete = () => {
     setShowIntro(false);
+    setStartHeroVideo(true);
     try {
       localStorage.setItem('fao_intro_seen', 'true');
       sessionStorage.setItem('fao_intro_seen', 'true');
@@ -74,7 +91,10 @@ export default function Home() {
     <div className="min-h-screen bg-white text-neutral-900 font-sans flex flex-col justify-between selection:bg-[#a11a1a] selection:text-white">
       {/* Cinematic Logo Reveal Video Intro */}
       {showIntro && (
-        <VideoIntro onComplete={handleIntroComplete} />
+        <VideoIntro
+          onNearEnd={() => setStartHeroVideo(true)}
+          onComplete={handleIntroComplete}
+        />
       )}
 
       {/* Main Header with Search pill, Phone, and red active line indicator */}
@@ -91,6 +111,7 @@ export default function Home() {
           <>
             {/* Apresentação Oficial: Logo FAO Clássicos Grande à Esquerda com Vídeo "FAO site" */}
             <BrandVideoHero
+              shouldPlay={startHeroVideo}
               onExploreVehicles={() => {
                 const el = document.getElementById('carrosel-veiculos');
                 if (el) {

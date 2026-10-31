@@ -5,13 +5,25 @@ import { ChevronRight } from 'lucide-react';
 
 interface VideoIntroProps {
   onComplete: () => void;
+  onNearEnd?: () => void;
 }
 
-export default function VideoIntro({ onComplete }: VideoIntroProps) {
+export default function VideoIntro({ onComplete, onNearEnd }: VideoIntroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [fadeOut, setFadeOut] = useState(false);
+  const nearEndTriggeredRef = useRef(false);
+  const nearEndTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const triggerNearEnd = () => {
+    if (nearEndTriggeredRef.current) return;
+    nearEndTriggeredRef.current = true;
+    if (onNearEnd) {
+      onNearEnd();
+    }
+  };
 
   const handleFinish = () => {
+    triggerNearEnd();
     if (fadeOut) return;
     setFadeOut(true);
     setTimeout(() => {
@@ -41,6 +53,26 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
       });
     }
 
+    const handleTimeUpdate = () => {
+      if (!video) return;
+      const duration = video.duration || 5.0;
+      // Start background video when 0.5s or less remain before intro ends
+      if (duration - video.currentTime <= 0.5) {
+        triggerNearEnd();
+      }
+    };
+
+    const handlePlaying = () => {
+      const duration = video.duration || 5.0;
+      const remainingTime = Math.max(0, duration - video.currentTime - 0.5);
+      if (nearEndTimerRef.current) clearTimeout(nearEndTimerRef.current);
+      nearEndTimerRef.current = setTimeout(() => {
+        triggerNearEnd();
+      }, remainingTime * 1000);
+    };
+
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('playing', handlePlaying);
     video.addEventListener('ended', handleFinish);
 
     // Fallback timer: 5.4s (Logo_Reveal-2 is 5.0s)
@@ -49,8 +81,13 @@ export default function VideoIntro({ onComplete }: VideoIntroProps) {
     }, 5400);
 
     return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('playing', handlePlaying);
       video.removeEventListener('ended', handleFinish);
       clearTimeout(fallbackTimer);
+      if (nearEndTimerRef.current) {
+        clearTimeout(nearEndTimerRef.current);
+      }
     };
   }, []);
 
